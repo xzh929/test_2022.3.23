@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+# 构建cifar全连接网络
 class MLP_Net(nn.Module):
     def __init__(self):
         super().__init__()
