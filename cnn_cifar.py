@@ -5,19 +5,23 @@ from CNN_CifarNet import CNN_net
 import torch
 from torch.nn.functional import one_hot
 from torch.utils.tensorboard import SummaryWriter
+from torch import nn
 
-cifar_train = datasets.CIFAR10(root="F:\data", train=True, transform=transforms.ToTensor(), download=True)
-cifar_test = datasets.CIFAR10(root="F:\data", train=False, transform=transforms.ToTensor(), download=False)
+cifar_train = datasets.CIFAR10(root="D:\data", train=True, transform=transforms.ToTensor(), download=True)
+cifar_test = datasets.CIFAR10(root="D:\data", train=False, transform=transforms.ToTensor(), download=False)
 
 DEVICE = "cuda"
 
 
 class Train:
     def __init__(self):
-        self.train_loader = DataLoader(cifar_train, batch_size=200, shuffle=True)
+        self.train_loader = DataLoader(cifar_train, batch_size=500, shuffle=True)
         self.test_loader = DataLoader(cifar_test, batch_size=100, shuffle=True)
 
         self.summary = SummaryWriter("logs")
+
+        # pytorch中的交叉熵自带对标签的one-hot处理
+        self.loss_fun = nn.CrossEntropyLoss()
 
         self.net = CNN_net().to(DEVICE)
         self.opt = optim.Adam(self.net.parameters())
@@ -30,8 +34,9 @@ class Train:
                 imgs = imgs.to(DEVICE)
                 tags = tags.to(DEVICE)
                 out = self.net(imgs)
-                tags = one_hot(tags, 10)
-                loss = torch.mean((out - tags) ** 2)
+                # tags = one_hot(tags, 10)
+                # loss = torch.mean((out - tags) ** 2)
+                loss = self.loss_fun(out, tags)
 
                 self.opt.zero_grad()
                 loss.backward()
@@ -47,16 +52,17 @@ class Train:
                 self.net.eval()
                 imgs = imgs.to(DEVICE)
                 tags = tags.to(DEVICE)
-                with torch.no_grad():
-                    out = self.net(imgs)
-                tags = one_hot(tags, 10)
-                loss = torch.mean((out - tags) ** 2)
+                out = self.net(imgs)
+                # tags = one_hot(tags, 10)
+                # loss = torch.mean((out - tags) ** 2).item()
+                loss = self.loss_fun(out, tags)
 
                 pre = torch.argmax(out, dim=1)
-                label = torch.argmax(tags, dim=1)
-                score = torch.mean(torch.eq(pre, label).float()).item()
-                sum_score += score
-                sum_test_loss += loss
+                # label = torch.argmax(tags, dim=1)
+                # score = torch.mean(torch.eq(pre, label).float())
+                score = torch.mean(torch.eq(pre, tags).float())
+                sum_score += score.item()
+                sum_test_loss += loss.item()
 
             avg_score = sum_score / len(self.test_loader)
             avg_test_loss = sum_test_loss / len(self.test_loader)
