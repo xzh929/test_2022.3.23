@@ -29,9 +29,9 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     def __init__(self):
         super(Decoder, self).__init__()
-        self.layer1 = nn.Conv2d(32, 16, 3, 1)
+        self.layer1 = nn.Conv2d(32, 16, 3, 1,padding=1)
         self.relu1 = nn.ReLU()
-        self.layer2 = nn.Conv2d(16, 1, 3, 1)
+        self.layer2 = nn.Conv2d(16, 1, 3, 1,padding=1)
         self.relu2 = nn.ReLU()
 
     def forward(self, x):
@@ -54,5 +54,9 @@ if __name__ == '__main__':
     net1 = Encoder()
     net2 = Decoder()
     out1 = net1(a)
+    layer = nn.Linear(10, 32)
+    out1 = layer(out1)
+    out1 = out1.reshape(1, 32, 1, 1)
+    out1 = interpolate(out1,scale_factor=7,mode='nearest')
     out2 = net2(out1)
     print(out2.shape)
