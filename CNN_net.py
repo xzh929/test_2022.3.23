@@ -32,6 +32,9 @@ class CNN_net(nn.Module):
 
 if __name__ == '__main__':
     a = torch.randn(1, 1, 28, 28)
+    layer = nn.Conv2d(1, 16, 3, 2, padding=1)
     net = CNN_net()
     out = net(a)
+    out1 = layer(a)
     print(out.shape)
+    print(out1.shape)
