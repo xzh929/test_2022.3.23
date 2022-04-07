@@ -23,7 +23,7 @@ class Train:
         # pytorch中的交叉熵自带对标签的one-hot处理
         self.loss_fun = nn.CrossEntropyLoss()
 
-        self.net = CNN_net().to(DEVICE)
+        self.net = CNN_net().cuda()
         self.opt = optim.Adam(self.net.parameters())
 
     def __call__(self):
@@ -31,9 +31,11 @@ class Train:
             sum_loss = 0.
             for i, (imgs, tags) in enumerate(self.train_loader):
                 self.net.train()
-                imgs = imgs.to(DEVICE)
-                tags = tags.to(DEVICE)
+                imgs = imgs.cuda()
+                tags = tags.cuda()
                 out = self.net(imgs)
+                # print(out.shape)
+                # print(tags.shape)
                 # tags = one_hot(tags, 10)
                 # loss = torch.mean((out - tags) ** 2)
                 loss = self.loss_fun(out, tags)
@@ -50,8 +52,8 @@ class Train:
             sum_score = 0.
             for i, (imgs, tags) in enumerate(self.test_loader):
                 self.net.eval()
-                imgs = imgs.to(DEVICE)
-                tags = tags.to(DEVICE)
+                imgs = imgs.cuda()
+                tags = tags.cuda()
                 out = self.net(imgs)
                 # tags = one_hot(tags, 10)
                 # loss = torch.mean((out - tags) ** 2).item()

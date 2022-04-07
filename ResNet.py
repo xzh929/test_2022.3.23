@@ -114,9 +114,11 @@ class ResNet34(nn.Module):
 
 
 if __name__ == '__main__':
-    a = torch.randn(1, 3, 224, 224)
+    a = torch.randn(2, 3, 1, 1)
     # net = BasicBlock(64,64,True).forward(a)
     net1 = ResNet18()
     net2 = ResNet34()
-    print(net2)
-    # print(net2(a).shape)
+    # print(net2)
+    print(net1(a).shape)
+    print(net2(a).shape)
+
