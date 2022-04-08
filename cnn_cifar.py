@@ -23,8 +23,8 @@ Score = 0.
 
 class Train:
     def __init__(self):
-        self.train_loader = DataLoader(cifar_train, batch_size=500, shuffle=True)
-        self.test_loader = DataLoader(cifar_test, batch_size=100, shuffle=True)
+        self.train_loader = DataLoader(cifar_train, batch_size=128, shuffle=True, num_workers=2)
+        self.test_loader = DataLoader(cifar_test, batch_size=100, shuffle=True, num_workers=2)
 
         self.summary = SummaryWriter("logs")
 
@@ -35,6 +35,11 @@ class Train:
         self.net = ResNet50().cuda()
         # self.opt = optim.Adam(self.net.parameters())
         self.opt = optim.SGD(self.net.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
+        if os.path.exists('checkpoint/resnet50.pth'):
+            self.net.load_state_dict(torch.load('checkpoint/resnet50.pth'))
+            print("load module success")
+        else:
+            print("no module")
 
     def __call__(self):
         global Score
@@ -88,6 +93,7 @@ class Train:
                 if not os.path.exists('checkpoint'):
                     os.mkdir('checkpoint')
                 torch.save(self.net.state_dict(), 'checkpoint/resnet50.pth')
+                print("save success")
 
 
 if __name__ == '__main__':
